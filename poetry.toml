@@ -1,0 +1,4 @@
+# pylance doesn't seem to pick up poetry venvs wherever they are by default but this seems to work
+[virtualenvs]
+in-project = true
+create = true
