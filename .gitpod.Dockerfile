@@ -1,3 +1,4 @@
-FROM gitpod/workspace-full
+FROM gitpod/workspace-python
 USER gitpod
-RUN pyenv install 3.10.1 && pyenv global 3.10.1 && pyenv shell 3.10.1 && curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+RUN pyenv install 3.10.1 && pyenv global 3.10.1
+RUN curl -sSL https://install.python-poetry.org | python3 -
