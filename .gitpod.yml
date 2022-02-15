@@ -2,13 +2,13 @@
 # Please adjust to your needs (see https://www.gitpod.io/docs/config-gitpod-file)
 # and commit this file to your remote git repository to share the goodness with others.
 
-image:
-  image: ghcr.io/grizzlybots11918/gitpod
+image: ghcr.io/grizzlybots11918/gitpod:latest
 tasks:
   - command: poetry run uvicorn main:app --reload
     name: Run API
   - init: poetry install
     name: Install Dependencies
+  # https://www.gitpod.io/docs/configure/tailscale
   - name: tailscaled
     command: |
       if [ -n "${TAILSCALE_STATE_ENOK}" ]; then
