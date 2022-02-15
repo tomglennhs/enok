@@ -3,7 +3,7 @@
 # and commit this file to your remote git repository to share the goodness with others.
 
 image:
-  file: .gitpod.Dockerfile
+  image: ghcr.io/grizzlybots11918/gitpod
 tasks:
   - command: poetry run uvicorn main:app --reload
     name: Run API
