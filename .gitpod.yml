@@ -2,11 +2,30 @@
 # Please adjust to your needs (see https://www.gitpod.io/docs/config-gitpod-file)
 # and commit this file to your remote git repository to share the goodness with others.
 
-image:
-  file: .gitpod.Dockerfile
+image: ghcr.io/grizzlybots11918/gitpod:latest
 tasks:
   - command: poetry run uvicorn main:app --reload
+    name: Run API
   - init: poetry install
+    name: Install Dependencies
+  # https://www.gitpod.io/docs/configure/tailscale
+  - name: tailscaled
+    command: |
+      if [ -n "${TAILSCALE_STATE_ENOK}" ]; then
+        # restore the tailscale state from gitpod user's env vars
+        sudo mkdir -p /var/lib/tailscale
+        echo "${TAILSCALE_STATE_ENOK}" | sudo tee /var/lib/tailscale/tailscaled.state > /dev/null
+      fi
+      sudo tailscaled
+  - name: tailscale
+    command: |
+      if [ -n "${TAILSCALE_STATE_ENOK}" ]; then
+        sudo -E tailscale up --accept-routes
+      else
+        sudo -E tailscale up --hostname "gitpod-${GITPOD_GIT_USER_NAME// /-}-$(echo ${GITPOD_WORKSPACE_CONTEXT} | jq -r .repository.name)" --accept-routes
+        # store the tailscale state into gitpod user
+        gp env TAILSCALE_STATE_ENOK="$(sudo cat /var/lib/tailscale/tailscaled.state)"
+      fi
 vscode:
   extensions:
     - ms-python.python
