@@ -4,6 +4,17 @@
 
 image: ghcr.io/tomglennhs/gitpod:main
 tasks:
+  - name: tailscale
+    command: |
+      echo "\x1b[1;32mClick on the Tailscale link, login with GitHub, then select the tomglennhs organization to have 3d printer access from your workspace.""
+      if [ -n "${TAILSCALE_STATE_ENOK}" ]; then
+        sudo -E tailscale up --accept-routes
+      else
+        sudo -E tailscale up --hostname "gitpod-${GITPOD_GIT_USER_NAME// /-}-$(echo ${GITPOD_WORKSPACE_CONTEXT} | jq -r .repository.name)" --accept-routes
+        # store the tailscale state into gitpod user
+        gp env TAILSCALE_STATE_ENOK="$(sudo cat /var/lib/tailscale/tailscaled.state)"
+      fi
+      exit
   - command: poetry run uvicorn main:app --reload
     name: Run API
   - init: poetry install
@@ -17,16 +28,6 @@ tasks:
         echo "${TAILSCALE_STATE_ENOK}" | sudo tee /var/lib/tailscale/tailscaled.state > /dev/null
       fi
       sudo tailscaled
-  - name: tailscale
-    command: |
-      echo "\x1b[1;32mClick on the Tailscale link, login with GitHub, then select the tomglennhs organization to have 3d printer access from your workspace.""
-      if [ -n "${TAILSCALE_STATE_ENOK}" ]; then
-        sudo -E tailscale up --accept-routes
-      else
-        sudo -E tailscale up --hostname "gitpod-${GITPOD_GIT_USER_NAME// /-}-$(echo ${GITPOD_WORKSPACE_CONTEXT} | jq -r .repository.name)" --accept-routes
-        # store the tailscale state into gitpod user
-        gp env TAILSCALE_STATE_ENOK="$(sudo cat /var/lib/tailscale/tailscaled.state)"
-      fi
 vscode:
   extensions:
     - ms-python.python

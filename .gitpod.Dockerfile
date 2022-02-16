@@ -30,3 +30,4 @@ RUN mkdir -p $PYTHONUSERBASE && chown gitpod $PYTHONUSERBASE
 
 USER gitpod
 RUN curl -sSL https://install.python-poetry.org | python3 -
+ENV PATH="~/.local/share/pypoetry/venv/bin:$PATH"
