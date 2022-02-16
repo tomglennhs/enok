@@ -2,7 +2,7 @@
 # Please adjust to your needs (see https://www.gitpod.io/docs/config-gitpod-file)
 # and commit this file to your remote git repository to share the goodness with others.
 
-image: ghcr.io/grizzlybots11918/gitpod:main
+image: ghcr.io/tomglennhs/gitpod:main
 tasks:
   - command: poetry run uvicorn main:app --reload
     name: Run API
@@ -19,6 +19,7 @@ tasks:
       sudo tailscaled
   - name: tailscale
     command: |
+      echo "\x1b[1;32mClick on the Tailscale link, login with GitHub, then select the tomglennhs organization to have 3d printer access from your workspace.""
       if [ -n "${TAILSCALE_STATE_ENOK}" ]; then
         sudo -E tailscale up --accept-routes
       else

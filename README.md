@@ -1,11 +1,11 @@
-# enoch
+# Enok
 
-3D printer management and monitoring for makerspaces. See also: https://github.com/grizzlybots11918/enoch-frontend (currently non-existent)
+3D printer management and monitoring for makerspaces. See also: https://github.com/tomglennhs/Enok-frontend (currently non-existent)
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/grizzlybots11918/enoch)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/tomglennhs/Enok)
 
 
-This repo contains Enoch's API, which is written in Python and utilizes FastAPI and stores data in a SQLite database. If you aren't familiar with FastAPI, take a look at [https://fastapi.tiangolo.com/tutorial/](https://fastapi.tiangolo.com/tutorial/).
+This repo contains Enok's API, which is written in Python and utilizes FastAPI and stores data in a SQLite database. If you aren't familiar with FastAPI, take a look at [https://fastapi.tiangolo.com/tutorial/](https://fastapi.tiangolo.com/tutorial/).
 
 <!-- TODO: Add more docs here, explain how to clone the repo, etc -->
 <!-- https://github.com/tiangolo/full-stack-fastapi-postgresql/ - probably will want to refer back to this for project structure -->

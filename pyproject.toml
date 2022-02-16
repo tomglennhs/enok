@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "api"
 version = "0.1.0"
-description = "Enoch API"
-authors = ["Enoch contributors"]
+description = "Enok API"
+authors = ["Enok contributors"]
 license = "MIT"
 
 [tool.poetry.dependencies]
