@@ -6,7 +6,7 @@ authors = ["Enok contributors"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.6.2"
 uvicorn = {extras = ["standard"], version = "^0.17.1"}
 fastapi = "^0.73.0"
 
