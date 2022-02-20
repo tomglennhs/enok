@@ -18,7 +18,30 @@ class Dremel(Printer):
         else:
             return False
     
-    # TODO: Implement the rest of the Printer methods
+    def pause_print(self):
+        req = requests.post(self.ip+"/command", files={
+            "PAUSE": self._get_current_file_name()
+        })
+        if req.json().message == "success":
+            return True
+        else:
+            return False
+    def resume_print(self):
+        req = requests.post(self.ip+"/command", files={
+            "PRINT": self._get_current_file_name()
+        })
+        if req.json().message == "success":
+            return True
+        else:
+            return False
+    def cancel_print(self):
+        req = requests.post(self.ip+"/command", files={
+            "CANCEL": self._get_current_file_name()
+        })
+        if req.json().message == "success":
+            return True
+        else:
+            return False
 
     def _get_current_file_name(self) -> str:
         # TODO: Pull this from wherever the status manager ends up storing stuff
