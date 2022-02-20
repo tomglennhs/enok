@@ -11,3 +11,7 @@ def read_root():
 def read_root():
     users = db.getUsers()
     return {"Hello": users}
+
+@app.on_event("shutdown")
+def shutdown_event():
+    db.con.close()
