@@ -5,26 +5,24 @@ cur = con.cursor()
 # db initialization stuff
 # Create table
 cur.execute('''CREATE TABLE IF NOT EXISTS users
-               (name TEXT, email TEXT, password TEXT, role BOOLEAN, quota INT, login_provider TEXT)''')
-
+               (id integer primary key, name TEXT, email TEXT, password TEXT, role INT, quota REAL, login_provider TEXT)''')
 
 cur.execute('''CREATE TABLE IF NOT EXISTS printers
-               (name TEXT, ip TEXT, camera TEXT, type TEXT, queue TEXT, uid TEXT)''')
+               (id integer primary key, name TEXT, ip TEXT, camera TEXT, type TEXT, queue TEXT)''')
+
 
 cur.execute('''CREATE TABLE IF NOT EXISTS job_files
-               (file_uid TEXT, filepath TEXT, filament_length INT)''')
+               (id integer primary key, filepath TEXT, filament_length INT, uid int, FOREIGN KEY (uid) REFERENCES users(id))''')
 
 cur.execute('''CREATE TABLE IF NOT EXISTS job_history
-               (time_started DEFAULT CURRENT_TIMESTAMP, time_finished TIMESTAMP, status TEXT, jfid TEXT, pid TEXT)''')
-
-
+               (id integer primary key, time_started DEFAULT CURRENT_TIMESTAMP, time_finished TIMESTAMP, status TEXT, jfid int, pid int, FOREIGN KEY (jfid) REFERENCES job_files(id), FOREIGN KEY (pid) REFERENCES printers(id))''')
 # Insert a row of data
-cur.execute('''INSERT INTO users VALUES ('JASON', 'Jason@gmail.com', '######', 1, 10000, 'gmail')''')
-cur.execute('''INSERT INTO users VALUES ('JOSEPH', 'Joseph@hotmail.com', '######', 0, 5000, 'username')''')
+cur.execute('''INSERT INTO users (name, email, password, role, quota, login_provider) VALUES ('JASON', 'Jason@gmail.com', '######', 1, 10000, 'gmail')''')
+cur.execute('''INSERT INTO users (name, email, password, role, quota, login_provider) VALUES ('JOSEPH', 'Joseph@hotmail.com', '######', 0, 5000, 'username')''')
 
 # Save (commit) the changes
 con.commit()
 
 def getUsers():
-    users = cur.execute("SELECT ROWID, * FROM users").fetchall()
+    users = cur.execute("SELECT * FROM users").fetchall()
     return users
