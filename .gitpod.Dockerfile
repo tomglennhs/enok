@@ -28,7 +28,7 @@ USER root
 
 RUN mkdir -p $PYTHONUSERBASE && chown gitpod $PYTHONUSERBASE
 # make sure tailscale is up to date
-RUN sudo apt-get update && sudo apt-get install tailscale
+RUN sudo upgrade-packages
 
 USER gitpod
 RUN curl -sSL https://install.python-poetry.org | python3 -
