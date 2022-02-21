@@ -2,16 +2,18 @@ from abc import abstractmethod
 
 
 class Printer:
-    """Start print. Requires a path to the file."""
     @abstractmethod
-    def start_print(gcode_path: str) -> bool:
+    def upload_print(gcode_path: str) -> bool:
+        pass
+    @abstractmethod
+    def start_print(file_name: str) -> bool:
         pass
     @abstractmethod
     def cancel_print() -> bool:
         pass
     @abstractmethod
-    def pause_print():
+    def pause_print() -> bool:
         pass
     @abstractmethod
-    def resume_print():
+    def resume_print() -> bool:
         pass
