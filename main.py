@@ -1,14 +1,18 @@
+from datetime import datetime
+import uuid
+from fastapi.responses import RedirectResponse
 from google.auth.transport import requests
 from google.oauth2 import id_token
 from fastapi import FastAPI, Form, Response, Request
 import db
-
+import store
 app = FastAPI()
 
 
 # TODO: don't hardcode these here
 GOOGLE_CLIENT_ID = "583695242034-fhr45p5p5bf996hm3ihmvfa5kg7g1e4t.apps.googleusercontent.com"
 ALLOWED_EMAIL_DOMAINS = ["leanderisd.org", "k12.leanderisd.org"]
+FRONTEND_HOST = "http://localhost:3000"
 
 
 @app.get("/")
@@ -38,9 +42,20 @@ def login_google(response: Response, request: Request, g_csrf_token: str = Form(
         response.status_code = 401
         return "Invalid email domain. Try signing in with your school email."
 
-    # TODO: Log user in/create user if needed, then redirect to frontend
-    return "Nice"
+    user = db.get_user_by_email(idinfo["email"])
+    if (user == None):
+        user = db.create_user(idinfo["name"], idinfo["email"], "google")
+    uid = user[0]
+    sid = uuid.uuid4()
+    store.set(f"session.{sid}", {"uid": uid, "created": datetime.now()})
+    response.set_cookie("sid", sid, httponly=True, secure=True)
+    return RedirectResponse(FRONTEND_HOST)
 
+
+# TODO: Create a @debug decorator so this only runs in dev
+@app.get("/dev/store")
+def read_store():
+    return store.getAll()
 
 @app.get("/users")
 def read_root():

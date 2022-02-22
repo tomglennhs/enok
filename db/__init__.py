@@ -52,3 +52,12 @@ def recall_job(id):
 def get_job_file(id):
     job_file = cur.execute("SELECT * FROM job_files WHERE ROWID = ?",(id,)).fetchall()
     return job_file
+
+def get_user_by_email(email: str):
+    user = cur.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+    return user
+
+def create_user(name: str, email: str, login_provider: str):
+    user = cur.execute('''INSERT INTO users (name, email, login_provider) VALUES (?, ?, ?)''', (name, email, login_provider)).fetchone()
+    con.commit()
+    return user
