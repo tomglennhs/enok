@@ -24,7 +24,31 @@ cur.execute('''INSERT INTO users (name, email, password, role, quota, login_prov
 # Save (commit) the changes
 con.commit()
 
+#Pull general information
+def get_table_data(*tables):
+    table_data = []
+    for table in tables:
+        table_data.append(cur.execute("SELECT ROWID, * FROM " + str(table)).fetchall())
+    return table_data
 
-def getUsers():
-    users = cur.execute("SELECT * FROM users").fetchall()
-    return users
+#Pull information for users
+def get_user_param(id, *param):
+    user_param = []
+    for i in param:
+        user_param.append(cur.execute("SELECT " + str(i) + " FROM users WHERE ROWID = ?",(id,)).fetchone())
+    return user_param
+
+#Pull information for printers
+def get_printer(id):
+    printer = cur.execute("SELECT * FROM printers WHERE ROWID = ?",(id,)).fetchall()
+    return printer
+
+#Pull infromation for Job_History
+def recall_job(id):
+    job = cur.execute("SELECT * FROM job_history WHERE ROWID = ?",(id,)).fetchall()
+    return job
+
+#Pull information for Job_Files
+def get_job_file(id):
+    job_file = cur.execute("SELECT * FROM job_files WHERE ROWID = ?",(id,)).fetchall()
+    return job_file
