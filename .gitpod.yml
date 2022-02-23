@@ -15,10 +15,8 @@ tasks:
         gp env TAILSCALE_STATE_ENOK="$(sudo cat /var/lib/tailscale/tailscaled.state)"
       fi
       exit
-  - command: poetry run uvicorn main:app --reload
+  - command: poetry install && poetry run uvicorn main:app --reload
     name: Run API
-  - init: poetry install
-    name: Install Dependencies
   # https://www.gitpod.io/docs/configure/tailscale
   - name: tailscaled
     command: |
