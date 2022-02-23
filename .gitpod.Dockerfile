@@ -1,9 +1,7 @@
 # adapted from https://github.com/gitpod-io/workspace-images/blob/master/chunks/lang-python/Dockerfile
 
-FROM gitpod/workspace-base
+FROM gitpod/lang-python
 USER gitpod
-
-RUN sudo install-packages python3-pip
 
 ENV PATH=$HOME/.pyenv/bin:$HOME/.pyenv/shims:$PATH
 RUN curl -fsSL https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash \
