@@ -1,6 +1,6 @@
 # adapted from https://github.com/gitpod-io/workspace-images/blob/master/chunks/lang-python/Dockerfile
 
-FROM gitpod/lang-python
+FROM gitpod/workspace-python
 USER gitpod
 
 ENV PATH=$HOME/.pyenv/bin:$HOME/.pyenv/shims:$PATH
