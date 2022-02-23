@@ -4,8 +4,9 @@ con = sqlite3.connect('enok.db', check_same_thread=False)
 cur = con.cursor()
 # db initialization stuff
 # Create table
+default = 0
 cur.execute('''CREATE TABLE IF NOT EXISTS users
-               (id integer primary key, name TEXT, email TEXT, password TEXT, role INT, quota REAL, login_provider TEXT)''')
+               (id integer primary key, name TEXT, email TEXT, password TEXT, role INT DEFAULT 0, quota REAL, login_provider TEXT)''')
 
 cur.execute('''CREATE TABLE IF NOT EXISTS printers
                (id integer primary key, name TEXT, ip TEXT, camera TEXT, type TEXT, queue TEXT)''')
@@ -18,7 +19,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS job_history
                (id integer primary key, time_started DEFAULT CURRENT_TIMESTAMP, time_finished TIMESTAMP, status TEXT, job_file_id int, printer_id int, FOREIGN KEY (job_file_id) REFERENCES job_files(id), FOREIGN KEY (printer_id) REFERENCES printers(id))''')
 
 # Insert a row of data
-cur.execute('''INSERT INTO users (name, email, password, role, quota, login_provider) VALUES ('JASON', 'Jason@gmail.com', '######', 1, 10000, 'gmail')''')
+cur.execute('''INSERT INTO users (name, email, password, quota, login_provider) VALUES ('JASON', 'Jason@gmail.com', '######', 10000, 'gmail')''')
 cur.execute('''INSERT INTO users (name, email, password, role, quota, login_provider) VALUES ('JOSEPH', 'Joseph@hotmail.com', '######', 0, 5000, 'username')''')
 
 # Save (commit) the changes

@@ -4,8 +4,14 @@ from fastapi.responses import RedirectResponse
 from google.auth.transport import requests
 from google.oauth2 import id_token
 from fastapi import FastAPI, Form, Response, Request
+from json import load, dump
 import db
+<<<<<<< Updated upstream
 import store
+=======
+import StatusManager as sm
+
+>>>>>>> Stashed changes
 app = FastAPI()
 
 
@@ -59,10 +65,14 @@ def read_store():
 
 @app.get("/users")
 def read_root():
-    users = db.getUsers()
+    users = db.get_table_data("users")
     return {"Hello": users}
-
 
 @app.on_event("shutdown")
 def shutdown_event():
     db.con.close()
+
+@app.on_event("startup")
+def startup_event():
+    StatusManager = sm.StatusManager
+    print(StatusManager)

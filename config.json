@@ -1,0 +1,6 @@
+{
+"printerCheckFrequency":1,
+"IP":["192.168.10.3","192.168.10.4"],
+"GoogleClientID": "",
+"AllowedDomains":""
+}
