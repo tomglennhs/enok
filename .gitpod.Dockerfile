@@ -3,7 +3,6 @@
 FROM gitpod/workspace-python
 USER gitpod
 
-# make sure tailscale is up to date
 RUN sudo upgrade-packages
 
 RUN curl -sSL https://install.python-poetry.org | python3 -
