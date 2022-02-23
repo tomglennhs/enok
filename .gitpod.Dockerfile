@@ -4,11 +4,7 @@ FROM gitpod/workspace-python
 USER gitpod
 
 ENV PATH=$HOME/.pyenv/bin:$HOME/.pyenv/shims:$PATH
-RUN curl -fsSL https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash \
-    && { echo; \
-        echo 'eval "$(pyenv init -)"'; \
-        echo 'eval "$(pyenv virtualenv-init -)"'; } >> /home/gitpod/.bashrc.d/60-python \
-    && pyenv update \
+RUN pyenv update \
     && pyenv install 3.10.1 \
     && pyenv global 3.10.1 \
     && python3 -m pip install --no-cache-dir --upgrade pip \
