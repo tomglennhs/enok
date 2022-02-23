@@ -17,10 +17,14 @@ class StatusManager:
         self.config = config
 
     def get_printer_status(self):
-        for item in self.config["IP"]:
-            if isinstance(item, str):
-                req = requests.post("http://" + item + "/command", headers={'Content-Type': 'application/x-www-form-urlencoded'}, data = {'data-urlencode': "GETPRINTERSTATUS="})
-                return req
+        for ip in self.config["IP"]:
+            if isinstance(ip, str):
+                req = requests.post("http://" + ip + "/command", headers={'Content-Type': 'application/x-www-form-urlencoded'}, data = {"GETPRINTERSTATUS":""})
+                data = req.json()
+                if data:
+                    return data
+                else:
+                    raise Exception("Failed to get data from printer " + ip)
                 
 
 
