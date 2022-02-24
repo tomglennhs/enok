@@ -1,6 +1,9 @@
 {
 "printerCheckFrequency":1,
 "IP":["192.168.10.3","192.168.10.4"],
-"GoogleClientID": "",
-"AllowedDomains":""
+"googleClientID": "583695242034-fhr45p5p5bf996hm3ihmvfa5kg7g1e4t.apps.googleusercontent.com",
+"allowedDomains":["leanderisd.org", "k12.leanderisd.org"],
+"sessionTimeout":{"hours":2},
+"dev": true,
+"host": "http://localhost:9000"
 }
