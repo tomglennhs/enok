@@ -4,13 +4,14 @@ import store
 import datetime
 import db
 
+
 class Role(Enum):
     VIEW_ONLY = 0
     STANDARD = 1
     ADMIN = 2
 
 
-# Currently WIP
+# TODO: Figure out how this needs to work
 def auth_level(response: Response, enok_sid: str = Cookie(None), level: Role = 0):
     print(enok_sid)
     if enok_sid == None:
@@ -24,5 +25,6 @@ def auth_level(response: Response, enok_sid: str = Cookie(None), level: Role = 0
     user = db.get_user_by_id(1)
     print("user @", user[4], ", required", level)
     if user[4] < level:
-        raise HTTPException(401, "This user doesn't have the correct role to access this endpoint.")
+        raise HTTPException(
+            401, "This user doesn't have the correct role to access this endpoint.")
     return user

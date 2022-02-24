@@ -3,6 +3,7 @@ from fastapi import Depends, Response, Query, APIRouter, HTTPException
 import uuid
 import datetime
 import db
+from dependencies import Role
 import store
 from config import config
 
@@ -13,13 +14,13 @@ async def dev_only():
     if DEV == False:
         raise HTTPException(404)
 
-router = APIRouter(dependencies=[Depends(dev_only)], prefix="/dev", tags=["development"])
-
-# WIP
+router = APIRouter(dependencies=[Depends(dev_only)],
+                   prefix="/dev", tags=["development"])
 
 
 @router.get("/login")
-def login_dev(response: Response, role: int = Query("2")):
+# TODO: Finish /dev/login
+def login_dev(response: Response, role: Role = Query(2)):
     sid = uuid.uuid4()
     expires = datetime.now() + timedelta(days=7)
     store.set(f"sessions/{sid}", {"uid": "DEV", "expires": expires})
