@@ -1,6 +1,6 @@
 import os
 import requests
-import json
+from config import config
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -10,10 +10,6 @@ sample_output = "{\"buildPlate_target_temperature\":60,\"chamber_temperature\":2
 
 class StatusManager:
     def __init__(self):
-        config = open("config.json", "r")
-        json_config = config.read()
-        config.close()
-        config = json.loads(json_config)
         self.config = config
 
     def get_printer_status(self):
@@ -30,10 +26,6 @@ class StatusManager:
 
 class PrinterDataHandler:
     def __init__(self):
-        config = open("config.json", "r")
-        json_config = config.read()
-        config.close()
-        config = json.loads(json_config)
         self.config = config
 
     def set_printer_data(self, *name):
