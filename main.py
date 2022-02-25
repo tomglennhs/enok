@@ -9,6 +9,8 @@ import db
 import store
 import StatusManager as sm
 
+
+
 app = FastAPI()
 class Role(Enum):
     VIEW_ONLY = 0
@@ -89,6 +91,10 @@ def dev_only(next):
     return wrapper
 
 # WIP
+@app.on_event("startup")
+def startup_event():
+    state = sm.StatusManager()
+
 @dev_only
 @app.get("/login/dev")
 def login_dev(response: Response, role: int = Query("2")):
@@ -110,11 +116,14 @@ def read_root():
     users = db.get_table_data("users")
     return {"Hello": users}
 
+#TODO make thise take in information from the front end JS scripts instead of being defined inside the function definition.
+@app.get("/upload_file")
+def upload_file(gcode = "file3.gcode", id = 1):
+    queue = sm.StatusManager.on_file_upload(gcode, db.get_printer_param(id, 'queue'))
+    db.set_queue(queue, id)
+    return queue
+
+
 @app.on_event("shutdown")
 def shutdown_event():
     db.con.close()
-
-@app.on_event("startup")
-def startup_event():
-    StatusManager = sm.StatusManager
-    print(StatusManager)
