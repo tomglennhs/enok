@@ -3,6 +3,7 @@ import requests
 from config import config
 import logging
 import sqlite3
+import json
 logging.basicConfig(level=logging.DEBUG)
 con = sqlite3.connect('enok.db', check_same_thread=False)
 cur = con.cursor()
@@ -24,7 +25,6 @@ class StatusManager:
             return json.dumps(queue)
 
     def can_start_print(self, UON):
-        config = self.config
         if(not(self.config["PONO"]) or UON):
             return True
         else:
@@ -39,5 +39,4 @@ class StatusManager:
                 if data:
                     return data
                 else:
-
                     raise Exception("Failed to get data from printer " + ip)
