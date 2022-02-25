@@ -1,6 +1,6 @@
 import os
 import requests
-import json
+from config import config
 import logging
 import sqlite3
 logging.basicConfig(level=logging.DEBUG)
@@ -12,10 +12,6 @@ sample_output = "{\"buildPlate_target_temperature\":60,\"chamber_temperature\":2
 
 class StatusManager:
     def __init__(self):
-        config = open("config.json", "r")
-        json_config = config.read()
-        config.close()
-        config = json.loads(json_config)
         self.config = config
 
     def on_file_upload(gcode: str, queue):
@@ -43,5 +39,5 @@ class StatusManager:
                 if data:
                     return data
                 else:
-                    raise Exception("Failed to get data from printer " + i)
 
+                    raise Exception("Failed to get data from printer " + ip)
