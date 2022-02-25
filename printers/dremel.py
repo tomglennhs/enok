@@ -1,5 +1,6 @@
 # https://docs.google.com/document/d/1Of4ZUU13UWfF1-2vZIfyzsz1yCOvCj9v9FT0aroKhuU/edit
 
+from array import array
 from printers.printer import Printer
 import requests
 
