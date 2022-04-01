@@ -3,7 +3,7 @@
 from array import array
 from printers.printer import Printer
 import requests
-
+import os
 
 class Dremel(Printer):
     ip: str
@@ -12,28 +12,34 @@ class Dremel(Printer):
         self.ip = ip
 
     def upload_print(self, gcode_path: str):
-        req = requests.post(self.ip+"/print_file_uploads", files={
-            "print_file": open(gcode_path, 'rb')
-        })
-        if req.json().message == "success":
+        files={
+            "print_file": (os.path.split(gcode_path)[1], open(gcode_path, 'rb'))
+        }
+        print(files)
+        req = requests.post("http://"+self.ip+"/print_file_uploads", files=files)
+        res = req.json()
+        if res["message"] == "success":
             return True
         else:
             return False
 
     def start_print(self, file_name: str):
-        req = requests.post(self.ip+"/command", files={
+        req = requests.post("http://"+self.ip+"/command", data={
             "PRINT": file_name
         })
-        if req.json().message == "success":
+        print(req.text)
+        res = req.json()
+        if res["message"] == "success":
             return True
         else:
             return False
 
     def pause_print(self):
-        req = requests.post(self.ip+"/command", files={
+        req = requests.post("http://"+self.ip+"/command", data={
             "PAUSE": self._get_current_file_name()
         })
-        if req.json().message == "success":
+        res = req.json()
+        if res["message"] == "success":
             return True
         else:
             return False
@@ -43,14 +49,17 @@ class Dremel(Printer):
         return self.start_print(self._get_current_file_name())
 
     def cancel_print(self):
-        req = requests.post(self.ip+"/command", files={
+        req = requests.post("http://"+self.ip+"/command", data={
             "CANCEL": self._get_current_file_name()
         })
-        if req.json().message == "success":
+        res = req.json()
+        if res["message"] == "success":
             return True
         else:
             return False
 
-    def _get_current_file_name(self) -> str:
-        # TODO: Pull this from wherever the status manager ends up storing stuff
-        return ""
+    def _get_current_file_name(self):
+        req = requests.post("http://" + self.ip + "/command", headers={'Content-Type': 'application/x-www-form-urlencoded'}, data = {"GETPRINTERSTATUS":""})
+        data = req.json()
+        if data:
+            return data["jobname"]
