@@ -25,13 +25,13 @@ class StatusManager:
             return json.dumps(queue)
 
     def can_start_print(self, UON):
-        if(not(self.config["PONO"]) or UON):
+        if(not(self.config.PONO) or UON):
             return True
         else:
             return False
 
     def get_printer_status(self):
-        ip = self.config["IP"]
+        ip = self.config.IP
         for i in ip:
             if isinstance(i, str):
                 req = requests.post("http://" + i + "/command", headers={'Content-Type': 'application/x-www-form-urlencoded'}, data = {"GETPRINTERSTATUS":""})

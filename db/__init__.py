@@ -82,11 +82,21 @@ def recall_job(id):
 
 # Pull information for Job_Files
 
+from pydantic import BaseModel
 
-def get_job_file(id):
+class JobFile(BaseModel):
+    id: int
+    filepath: str
+    filament_length: float
+    user_id: int
+
+def get_job_file(id) -> JobFile:
     job_file = cur.execute(
-        "SELECT * FROM job_files WHERE ROWID = ?", (id,)).fetchall()
-    return job_file
+        "SELECT id, filepath, filament_length, user_id FROM job_files WHERE id = ?", (id,)).fetchall()
+    if len(job_file) == 0:
+        return None
+    id, filepath, filament_length, user_id = job_file
+    return JobFile(id=id, filepath=filepath, filament_length=filament_length, user_id=user_id)
 
 
 def get_user_by_email(email: str):

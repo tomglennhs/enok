@@ -7,7 +7,7 @@ from dependencies import Role
 import store
 from config import config
 
-DEV = config["dev"]
+DEV = config.dev
 
 
 async def dev_only():
