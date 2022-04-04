@@ -1,3 +1,4 @@
+from pydantic import BaseModel
 import sqlite3
 from typing import Optional
 con = sqlite3.connect('enok.db', check_same_thread=False)
@@ -23,13 +24,16 @@ try:
     # Insert a row of data
     cur.execute('''INSERT INTO users (name, email, password, quota, login_provider) VALUES ('JASON', 'Jason@gmail.com', '######', 10000, 'gmail')''')
     cur.execute('''INSERT INTO users (name, email, password, quota, login_provider) VALUES ('JOSEPH', 'Joseph@hotmail.com', '######', 5000, 'username')''')
-    cur.execute('''INSERT INTO printers (name, ip, camera, type, queue) VALUES ('dremel', '', '', 'dremel', '{\"queue\":[["file.gcode", {"UON": false, "Owner": 1}], ["file2.gcode",{"UON": true, "Owner": 2}]]}')''')
+    cur.execute(
+        '''INSERT INTO printers (name, ip, camera, type, queue) VALUES ('dremel', '', '', 'dremel', '{\"queue\":[["file.gcode", {"UON": false, "Owner": 1}], ["file2.gcode",{"UON": true, "Owner": 2}]]}')''')
     # Save (commit) the changes
     con.commit()
 except sqlite3.IntegrityError:
     pass
 
 # Pull general information
+
+
 def get_table_data(*tables):
     table_data = []
     for table in tables:
@@ -39,41 +43,46 @@ def get_table_data(*tables):
 
 # Pull information for users
 
+
 def get_user_param(id, *param):
     if(len(param) == 1):
         return cur.execute("SELECT " + str(i) +
-                            " FROM users WHERE ROWID = ?", (id,)).fetchone()
+                           " FROM users WHERE ROWID = ?", (id,)).fetchone()
     elif(len(param) > 1):
         user_param = []
         for i in param:
             user_param.append(cur.execute("SELECT " + str(i) +
-                            " FROM users WHERE ROWID = ?", (id,)).fetchone())
+                                          " FROM users WHERE ROWID = ?", (id,)).fetchone())
         return user_param
     else:
         return None
 
 # Pull information for printers
 
+
 def get_printer_param(id, *param):
     if(len(param) == 1):
-        return cur.execute("SELECT " + str(param[0]) + 
-                            " FROM printers WHERE ROWID = ?", (id,)).fetchone()[0]
+        return cur.execute("SELECT " + str(param[0]) +
+                           " FROM printers WHERE ROWID = ?", (id,)).fetchone()[0]
     elif(len(param) > 1):
         printer_param = []
         for i in param:
             printer_param.append(cur.execute("SELECT " + str(i) +
-                            " FROM printers WHERE ROWID = ?", (id,)).fetchone())
+                                             " FROM printers WHERE ROWID = ?", (id,)).fetchone())
         return printer_param
     else:
         return None
 
-#Update printers
+# Update printers
+
+
 def set_queue(queue, id):
-    cur.execute("UPDATE printers SET queue = \'" + queue +  
-                            "\' WHERE ROWID = ?", (id,))
+    cur.execute("UPDATE printers SET queue = \'" + queue +
+                "\' WHERE ROWID = ?", (id,))
     con.commit()
-    
+
 # Pull infromation for Job_History
+
 
 def recall_job(id):
     job = cur.execute(
@@ -82,7 +91,6 @@ def recall_job(id):
 
 # Pull information for Job_Files
 
-from pydantic import BaseModel
 
 class JobFile(BaseModel):
     id: int
@@ -90,24 +98,43 @@ class JobFile(BaseModel):
     filament_length: float
     user_id: int
 
+from enum import Enum
+class Role(Enum):
+    # Users that are not certified to use printers.
+    VIEW_ONLY = 0
+    # Users that are certified to use printers.
+    STANDARD = 1
+    # Users that have super user privileges.
+    ADMIN = 2
+
+class User(BaseModel):
+    id: int
+    name: str
+    email: str
+    password: str
+    role: Role
+    quota: float
+    login_provider: str
+
+
 def get_job_file(id) -> JobFile:
     job_file = cur.execute(
-        "SELECT id, filepath, filament_length, user_id FROM job_files WHERE id = ?", (id,)).fetchall()
-    if len(job_file) == 0:
-        return None
+        "SELECT id, filepath, filament_length, user_id FROM job_files WHERE id = ?", (id,)).fetchone()
     id, filepath, filament_length, user_id = job_file
     return JobFile(id=id, filepath=filepath, filament_length=filament_length, user_id=user_id)
 
 
-def get_user_by_email(email: str):
+def get_user_by_email(e: str) -> User:
     user = cur.execute("SELECT * FROM users WHERE email = ?",
-                       (email,)).fetchone()
-    return user
+                       (e,)).fetchone()
+    id, name, email, password, role, quota, login_provider = user
+    return User(id=id, name=name, email=email, password=password, role=role, quota=quota, login_provider=login_provider)
 
 
-def get_user_by_id(id: str):
+def get_user_by_id(id: str) -> User:
     user = cur.execute("SELECT * FROM users WHERE id = ?", (id,)).fetchone()
-    return user
+    id, name, email, password, role, quota, login_provider = user
+    return User(id=id, name=name, email=email, password=password, role=role, quota=quota, login_provider=login_provider)
 
 
 def create_user(name: str, email: str,
