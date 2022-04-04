@@ -17,6 +17,5 @@ class Config(BaseModel):
     dev: Optional[bool]
     host: str
     files_location: str
-    PONO: bool
     
 config = Config(**json.loads(_json_config))
