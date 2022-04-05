@@ -1,5 +1,8 @@
 from fastapi import APIRouter
+import db
+import StatusManager as sm
 
+state = sm.StatusManager()
 router = APIRouter(prefix="/printers", tags=["printers"])
 
 
@@ -24,9 +27,9 @@ def stop_current_print(id):
     return
 
 
-@router.post("/{id}/next")
+@router.get("/{id}/next")
 def start_next_in_queue(id):
-    return
+    return state.can_start_print("USB")
 
 
 @router.get("/")

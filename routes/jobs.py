@@ -1,8 +1,12 @@
 from fastapi import APIRouter, HTTPException, Query, UploadFile
 import db
 import StatusManager as sm
-router = APIRouter(prefix="/jobs", tags=["jobs"])
 from config import config
+
+router = APIRouter(prefix="/jobs", tags=["jobs"])
+state = sm.StatusManager()
+
+
 
 # TODO: implement
 @router.get("/")
@@ -10,8 +14,8 @@ def list_jobs(all: bool = Query(False, description="List all uploaded jobs. Only
     return
 
 @router.post("/")
-def add_to_queue(file: str):
-    queue = sm.StatusManager.on_file_upload(file, db.get_printer_param(id, 'queue'))
+def add_to_queue(file: str, id: int):
+    queue = state.on_file_upload(file, db.get_printer_param(id, 'queue'))
     db.set_queue(queue, id)
     return queue
 
@@ -37,3 +41,4 @@ def upload_file(upload: UploadFile):
     file.write(upload.read())
     file.close()
     return
+

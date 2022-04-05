@@ -5,12 +5,11 @@ con = sqlite3.connect('enok.db', check_same_thread=False)
 cur = con.cursor()
 # db initialization stuff
 # Create table
-default = 0
 cur.execute('''CREATE TABLE IF NOT EXISTS users
                (id INTEGER PRIMARY KEY, name TEXT, email TEXT UNIQUE, password TEXT, role INT DEFAULT 0, quota REAL, login_provider TEXT)''')
 
 cur.execute('''CREATE TABLE IF NOT EXISTS printers
-               (id INTEGER PRIMARY KEY, name TEXT, ip TEXT, camera TEXT, type TEXT, queue TEXT)''')
+               (id INTEGER PRIMARY KEY, name TEXT, ip TEXT, camera TEXT, type TEXT, queue TEXT, upload_method TEXT)''')
 
 
 cur.execute('''CREATE TABLE IF NOT EXISTS job_files
@@ -23,8 +22,9 @@ try:
     # Insert a row of data
     cur.execute('''INSERT INTO users (name, email, password, quota, login_provider) VALUES ('JASON', 'Jason@gmail.com', '######', 10000, 'gmail')''')
     cur.execute('''INSERT INTO users (name, email, password, quota, login_provider) VALUES ('JOSEPH', 'Joseph@hotmail.com', '######', 5000, 'username')''')
-    cur.execute('''INSERT INTO printers (name, ip, camera, type, queue) VALUES ('dremel', '', '', 'dremel', '{\"queue\":[["file.gcode", {"UON": false, "Owner": 1}], ["file2.gcode",{"UON": true, "Owner": 2}]]}')''')
-    # Save (commit) the changes
+    cur.execute('''INSERT INTO printers (name, ip, camera, type, queue) VALUES ('dremel', '', '', 'dremel', '{\"queue\":[["file.gcode", {"UploadMethod": "USB", "Owner": 1}], ["file2.gcode",{"UploadMethod": "Network", "Owner": 2}]]}')''')
+
+    # Save (commit) the changes"queue":[["file.gcode", {"UploadMethod": "USB, "Owner": 1}], ["file2.gcode",{"UploadMethod": "Network", "Owner": 2}]]}
     con.commit()
 except sqlite3.IntegrityError:
     pass
@@ -55,6 +55,7 @@ def get_user_param(id, *param):
 # Pull information for printers
 
 def get_printer_param(id, *param):
+    print(param[0])
     if(len(param) == 1):
         return cur.execute("SELECT " + str(param[0]) + 
                             " FROM printers WHERE ROWID = ?", (id,)).fetchone()[0]

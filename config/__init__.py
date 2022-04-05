@@ -17,5 +17,6 @@ class Config(BaseModel):
     dev: Optional[bool]
     host: str
     files_location: str
+    UploadVia: str
     
 config = Config(**json.loads(_json_config))

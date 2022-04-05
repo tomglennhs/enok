@@ -7,8 +7,6 @@ import db
 from routes import auth, dev, printers, jobs
 import StatusManager as sm
 
-
-
 app = FastAPI()
 app.include_router(auth.router)
 app.include_router(dev.router)
@@ -24,8 +22,7 @@ def read_root():
 # WIP
 @app.on_event("startup")
 def startup_event():
-    state = sm.StatusManager()
-
+    pass
 
 @app.on_event("shutdown")
 def shutdown_event():
