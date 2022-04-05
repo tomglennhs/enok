@@ -11,6 +11,8 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/google")
 def login_google(response: Response, request: Request, g_csrf_token: str = Form(""), credential: str = Form("")):
+    if not config.googleClientID:
+        raise HTTPException(400, "Google login is not enabled.")
     csrf_token_cookie = request.cookies.get("g_csrf_token")
     if not csrf_token_cookie:
         raise HTTPException(400, "No CSRF token in Cookie.")
@@ -34,8 +36,8 @@ def login_google(response: Response, request: Request, g_csrf_token: str = Form(
     expires = datetime.now() + config.SESSION_EXPIRY_DELTA
     store.set(f"sessions/{sid}", {"uid": uid, "expires": expires})
     response.set_cookie("enok_sid", sid, httponly=True, secure=not config.DEV,
-                        max_age=config["SESSION_EXPIRY_DELTA"].total_seconds)
-    return RedirectResponse(config["HOST"])
+                        max_age=config.SESSION_EXPIRY_DELTA.total_seconds)
+    return RedirectResponse(config.HOST)
 
 @router.get("/logout")
 def log_out(response: Response):

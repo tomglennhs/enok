@@ -3,7 +3,6 @@ from fastapi import Depends, Response, Query, APIRouter, HTTPException
 import uuid
 import datetime
 import db
-from dependencies import Role
 import store
 from config import config
 
@@ -20,7 +19,7 @@ router = APIRouter(dependencies=[Depends(dev_only)],
 
 @router.get("/login")
 # TODO: Finish /dev/login
-def login_dev(response: Response, role: Role = Query(2)):
+def login_dev(response: Response, role: db.Role = Query(2)):
     sid = uuid.uuid4()
     expires = datetime.now() + timedelta(days=7)
     store.set(f"sessions/{sid}", {"uid": "DEV", "expires": expires})

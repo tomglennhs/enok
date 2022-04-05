@@ -11,7 +11,7 @@ class Config(BaseModel):
     printerCheckFrequency: int
     IP: List[str]
     googleClientID: Optional[str]
-    allowedDomains: List[str]
+    allowedDomains: Optional[List[str]]
     # TODO: Type this better lol
     sessionTimeout: object
     dev: Optional[bool]
