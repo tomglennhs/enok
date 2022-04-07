@@ -5,7 +5,8 @@
 from fastapi import FastAPI
 import db
 from routes import auth, dev, printers, jobs
-import StatusManager as sm
+from config import config
+import os
 
 app = FastAPI()
 app.include_router(auth.router)
@@ -19,10 +20,11 @@ def read_root():
     return {"Hello": "World"}
 
 
-# WIP
 @app.on_event("startup")
 def startup_event():
-    pass
+    if not os.path.exists(config.files_location):
+        os.mkdir(config.files_location)
+
 
 @app.on_event("shutdown")
 def shutdown_event():

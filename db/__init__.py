@@ -1,6 +1,8 @@
+from enum import Enum
+from config import config
 from pydantic import BaseModel
 import sqlite3
-from typing import Optional
+from typing import List, Optional
 con = sqlite3.connect('enok.db', check_same_thread=False)
 
 cur = con.cursor()
@@ -23,7 +25,8 @@ try:
     # Insert a row of data
     cur.execute('''INSERT INTO users (name, email, password, quota, login_provider) VALUES ('JASON', 'Jason@gmail.com', '######', 10000, 'gmail')''')
     cur.execute('''INSERT INTO users (name, email, password, quota, login_provider) VALUES ('JOSEPH', 'Joseph@hotmail.com', '######', 5000, 'username')''')
-    cur.execute('''INSERT INTO printers (name, ip, camera, type, queue) VALUES ('dremel', '', '', 'dremel', '{\"queue\":[["file.gcode", {"UploadMethod": "USB", "Owner": 1}], ["file2.gcode",{"UploadMethod": "Network", "Owner": 2}]]}')''')
+    cur.execute(
+        '''INSERT INTO printers (name, ip, camera, type, queue) VALUES ('dremel', '', '', 'dremel', '{\"queue\":[["file.gcode", {"UploadMethod": "USB", "Owner": 1}], ["file2.gcode",{"UploadMethod": "Network", "Owner": 2}]]}')''')
 
     # Save (commit) the changes"queue":[["file.gcode", {"UploadMethod": "USB, "Owner": 1}], ["file2.gcode",{"UploadMethod": "Network", "Owner": 2}]]}
     con.commit()
@@ -98,7 +101,7 @@ class JobFile(BaseModel):
     filament_length: float
     user_id: int
 
-from enum import Enum
+
 class Role(Enum):
     # Users that are not certified to use printers.
     VIEW_ONLY = 0
@@ -107,11 +110,12 @@ class Role(Enum):
     # Users that have super user privileges.
     ADMIN = 2
 
+
 class User(BaseModel):
     id: int
     name: str
     email: str
-    password: str
+    password: Optional[str]
     role: Role
     quota: float
     login_provider: str
@@ -124,11 +128,44 @@ def get_job_file(id) -> JobFile:
     return JobFile(id=id, filepath=filepath, filament_length=filament_length, user_id=user_id)
 
 
+def get_job_files_by_user(user_id) -> List[JobFile]:
+    files = []
+    job_file = cur.execute(
+        "SELECT id, filepath, filament_length, user_id FROM job_files WHERE user_id = ?", (user_id,)).fetchall()
+    for job in job_file:
+        id, filepath, filament_length, user_id = job
+        files.append(JobFile(id=id, filepath=filepath,
+                     filament_length=filament_length, user_id=user_id))
+    return files
+
+
+def get_all_job_files() -> List[JobFile]:
+    files = []
+    job_file = cur.execute(
+        "SELECT id, filepath, filament_length, user_id FROM job_files").fetchall()
+    for job in job_file:
+        id, filepath, filament_length, user_id = job
+        files.append(JobFile(id=id, filepath=filepath,
+                     filament_length=filament_length, user_id=user_id))
+    return files
+
+
 def get_user_by_email(e: str) -> User:
     user = cur.execute("SELECT * FROM users WHERE email = ?",
                        (e,)).fetchone()
     id, name, email, password, role, quota, login_provider = user
     return User(id=id, name=name, email=email, password=password, role=role, quota=quota, login_provider=login_provider)
+
+
+def add_job(filepath: str, filament_length: float, user_id: str):
+    cur.execute("INSERT INTO job_files (filepath, filament_length, user_id) VALUES (?, ?, ?)",
+                (filepath, filament_length, user_id))
+    con.commit()
+
+
+def delete_job(id: int):
+    cur.execute("DELETE FROM job_files WHERE id = ?", (id,))
+    con.commit()
 
 
 def get_user_by_id(id: str) -> User:
