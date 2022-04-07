@@ -1,7 +1,6 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 from fastapi import Depends, Response, Query, APIRouter, HTTPException
 import uuid
-import datetime
 import db
 import store
 from config import config
@@ -18,14 +17,16 @@ router = APIRouter(dependencies=[Depends(dev_only)],
 
 
 @router.get("/login")
-# TODO: Finish /dev/login
 def login_dev(response: Response, role: db.Role = Query(2)):
+    now = datetime.now()
+    user = db.create_user("Dev User", f"dev@{now.timestamp()}.local", "dev", None, role)
     sid = uuid.uuid4()
-    expires = datetime.now() + timedelta(days=7)
-    store.set(f"sessions/{sid}", {"uid": "DEV", "expires": expires})
+    delta = timedelta(**config.sessionTimeout.dict())
+    expires = now + delta
+    store.set(f"sessions/{sid}", {"uid": user.id, "expires": expires})
     response.set_cookie("enok_sid", sid, httponly=True, secure=False,
-                        max_age=timedelta(days=7).total_seconds)
-    return "sup"
+                        max_age=delta.total_seconds)
+    return user
 
 
 @router.get("/users")

@@ -138,8 +138,8 @@ def get_user_by_id(id: str) -> User:
 
 
 def create_user(name: str, email: str,
-                login_provider: str = "local", password: Optional[str] = None,):
-    cur.execute('''INSERT INTO users (name, email, login_provider, password) VALUES (?, ?, ?)''',
-                (name, email, login_provider, password)).fetchone()
+                login_provider: str = "local", password: Optional[str] = None, role: Role = Role.VIEW_ONLY, quota: float = config.default_user_quota):
+    cur.execute('''INSERT INTO users (name, email, login_provider, password, role, quota) VALUES (?, ?, ?, ?, ?, ?)''',
+                (name, email, login_provider, password, role, quota)).fetchone()
     con.commit()
     return get_user_by_email(email)
