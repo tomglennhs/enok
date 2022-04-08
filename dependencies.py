@@ -1,9 +1,10 @@
 from fastapi import Depends, HTTPException, Response, Cookie
 import store
-from datetime import datetime
+from config import config
+from datetime import datetime, timedelta
 import db
 
-def logged_in(response: Response, enok_sid: str = Cookie(None)):
+async def logged_in(response: Response, enok_sid: str = Cookie(None)):
     if enok_sid == None:
         raise HTTPException(403, "Please sign in.")
     key = f"sessions/{enok_sid}"
@@ -13,7 +14,9 @@ def logged_in(response: Response, enok_sid: str = Cookie(None)):
         store.safeDelete(key)
         raise HTTPException(403, "Your session has expired, please sign in again.")
     user = db.get_user_by_id(session["uid"])
-    return user
+    yield user
+    session["expires"] = datetime.now() + timedelta(**config.sessionTimeout.dict())
+    store.set(key, session)
 
 def standard_user(current_user: db.User = Depends(logged_in)):
     if current_user.role.value <= db.Role.STANDARD.value:
