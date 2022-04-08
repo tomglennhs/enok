@@ -1,3 +1,5 @@
+# TODO: Make this less sus
+
 s = {}
 
 

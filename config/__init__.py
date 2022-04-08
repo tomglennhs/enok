@@ -22,8 +22,8 @@ class Config(BaseModel):
     IP: List[str]
     googleClientID: Optional[str]
     allowedDomains: Optional[List[str]]
-    sessionTimeout: Delta
-    dev: Optional[bool]
+    sessionTimeout: Delta = Delta(hours=1)
+    dev: bool = False
     host: str
     files_location: str
     UploadVia: str

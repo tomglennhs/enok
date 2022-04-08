@@ -1,6 +1,7 @@
 # TODO: Figure out ratelimiting
 # TODO: Figure out pagination
 # TODO: Is there anything important that I'm overlooking wrt to sessions?
+# TODO: Handle errors better lol
 
 from fastapi import FastAPI
 import db
@@ -8,7 +9,7 @@ from routes import auth, dev, printers, jobs
 from config import config
 import os
 
-app = FastAPI()
+app = FastAPI(title="Enok")
 app.include_router(auth.router)
 app.include_router(dev.router)
 app.include_router(printers.router)

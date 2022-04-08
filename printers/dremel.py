@@ -1,22 +1,19 @@
 # https://docs.google.com/document/d/1Of4ZUU13UWfF1-2vZIfyzsz1yCOvCj9v9FT0aroKhuU/edit
 
-from array import array
-from printers.printer import Printer
+from printers.base import BasePrinter
 import requests
 import os
 
-class Dremel(Printer):
-    ip: str
 
-    def __init__(self, ip):
-        self.ip = ip
+class Dremel(BasePrinter):
 
     def upload_print(self, gcode_path: str):
-        files={
+        files = {
             "print_file": (os.path.split(gcode_path)[1], open(gcode_path, 'rb'))
         }
         print(files)
-        req = requests.post("http://"+self.ip+"/print_file_uploads", files=files)
+        req = requests.post("http://"+self.ip +
+                            "/print_file_uploads", files=files)
         res = req.json()
         if res["message"] == "success":
             return True
@@ -59,7 +56,8 @@ class Dremel(Printer):
             return False
 
     def _get_current_file_name(self):
-        req = requests.post("http://" + self.ip + "/command", headers={'Content-Type': 'application/x-www-form-urlencoded'}, data = {"GETPRINTERSTATUS":""})
+        req = requests.post("http://" + self.ip + "/command", headers={
+                            'Content-Type': 'application/x-www-form-urlencoded'}, data={"GETPRINTERSTATUS": ""})
         data = req.json()
         if data:
             return data["jobname"]

@@ -3,8 +3,9 @@ import os
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile
 import db
 import StatusManager as sm
+import db.jobs
 from config import config
-from dependencies import standard_user
+from dependencies import logged_in, standard_user
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 state = sm.StatusManager()
@@ -16,31 +17,22 @@ def list_jobs(all: bool = Query(False, description="List all uploaded jobs. Only
         if user.role != db.Role.ADMIN:
             raise HTTPException(
                 status_code=403, detail="Only admins can list all jobs.")
-        return db.get_all_job_files()
-    return db.get_job_files_by_user(user.id)
-
-
-@router.post("/")
-# TODO: move this to the printers
-def add_to_queue(file: str, id: int):
-    queue = state.on_file_upload(file, db.get_printer_param(id, 'queue'))
-    db.set_queue(queue, id)
-    return queue
+        return db.jobs.get_all_job_files()
+    return db.jobs.get_job_files_by_user(user.id)
 
 
 @router.get("/{id}")
-def get_job(id: str, user: db.User = Depends(standard_user)):
-    job = db.get_job_file(id)
-    return job
+def get_job(id: str, user: db.User = Depends(logged_in)):
+    return db.jobs.get_job_file(id)
 
 
 @router.delete("/{id}")
-# TODO: implement
-def delete_job(id: str, user: db.User = Depends(standard_user)):
-    job = db.get_job_file(id)
-    os.remove(job.filepath)
-    db.delete_job(id)
-    return
+def delete_job(job_id: int, user: db.User = Depends(standard_user)):
+    job = db.jobs.get_job_file(job_id)
+    if user.id == job.user_id or user.role == db.Role.ADMIN:
+        os.remove(job.filepath)
+        db.jobs.delete_job(job_id)
+    raise HTTPException(status_code=403, detail="You are not allowed to delete this job.")
 
 
 @router.post("/upload_file")
@@ -59,7 +51,7 @@ async def upload_file(upload: UploadFile, user: db.User = Depends(standard_user)
             f.write(data)
     except FileExistsError:
         raise HTTPException(status_code=400, detail="File already exists.")
-    db.add_job(path, length, user.id)
+    db.jobs.add_job(path, length, user.id)
 
 
 def get_gcode_filament_length(gcode: str) -> float:
@@ -70,7 +62,6 @@ def get_gcode_filament_length(gcode: str) -> float:
     return 0.0
 
 
-@router.get("/{id}/history")
-# TODO: implement
-def get_job_history(id: str, user: db.User = Depends(standard_user)):
-    return
+@router.get("/{id}/history", dependencies=[Depends(logged_in)])
+def get_job_history(job_id: int):
+    return db.jobs.get_history_by_job_id(job_id)
