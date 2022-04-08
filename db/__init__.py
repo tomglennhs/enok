@@ -19,7 +19,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS job_files
                (id INTEGER PRIMARY KEY, filepath TEXT, filament_length REAL, user_id int, FOREIGN KEY (user_id) REFERENCES users(id))''')
 
 cur.execute('''CREATE TABLE IF NOT EXISTS job_history
-               (id INTEGER PRIMARY KEY, time_started DEFAULT CURRENT_TIMESTAMP, time_finished TIMESTAMP, status TEXT, job_file_id int, printer_id int, FOREIGN KEY (job_file_id) REFERENCES job_files(id), FOREIGN KEY (printer_id) REFERENCES printers(id))''')
+               (id INTEGER PRIMARY KEY, time_started DATETIME DEFAULT CURRENT_TIMESTAMP, time_finished DATETIME, status TEXT, job_file_id int, printer_id int, FOREIGN KEY (job_file_id) REFERENCES job_files(id), FOREIGN KEY (printer_id) REFERENCES printers(id))''')
 
 try:
     # Insert a row of data
@@ -120,6 +120,13 @@ class User(BaseModel):
     quota: float
     login_provider: str
 
+class JobHistory(BaseModel):
+    id: int
+    time_started: str
+    time_finished: str
+    status: str
+    job_file_id: int
+    printer_id: int
 
 def get_job_file(id) -> JobFile:
     job_file = cur.execute(
@@ -180,3 +187,7 @@ def create_user(name: str, email: str,
                 (name, email, login_provider, password, role, quota)).fetchone()
     con.commit()
     return get_user_by_email(email)
+
+def get_history_by_job_id(id: int):
+    history = cur.execute("SELECT * FROM job_history WHERE job_id = ?", (id,)).fetchall()
+    return history
