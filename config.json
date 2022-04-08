@@ -6,7 +6,7 @@
   "sessionTimeout": { "hours": 2 },
   "dev": true,
   "host": "http://localhost:9000",
-  "files_location": "/Users/json/enok-files",
+  "files_location": "/home/glenn/enok-files",
   "UploadVia": "Network",
   "default_user_quota": 10000
 }
