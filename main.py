@@ -2,12 +2,14 @@
 # TODO: Figure out pagination
 # TODO: Is there anything important that I'm overlooking wrt to sessions?
 # TODO: Handle errors better lol
-
-from fastapi import FastAPI
-import db
-from routes import auth, dev, printers, jobs
-from config import config
 import os
+
+import uvicorn
+from fastapi import FastAPI
+
+import db
+from config import config
+from routes import auth, dev, printers, jobs
 
 app = FastAPI(title="Enok")
 app.include_router(auth.router)
@@ -30,3 +32,7 @@ def startup_event():
 @app.on_event("shutdown")
 def shutdown_event():
     db.con.close()
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
