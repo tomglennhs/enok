@@ -1,4 +1,3 @@
-from typing import List
 import os
 from typing import List
 
@@ -15,8 +14,9 @@ state = sm.StatusManager()
 
 
 @router.get("/")
-def list_jobs(all: bool = Query(False, description="List all uploaded jobs. Only for admins."), user: db.User = Depends(standard_user)) -> List[db.JobFile]:
-    if all:
+def list_jobs(all_jobs: bool = Query(False, description="List all uploaded jobs. Only for admins."),
+              user: db.User = Depends(standard_user)) -> List[db.JobFile]:
+    if all_jobs:
         if user.role != db.Role.ADMIN:
             raise HTTPException(
                 status_code=403, detail="Only admins can list all jobs.")
@@ -24,12 +24,12 @@ def list_jobs(all: bool = Query(False, description="List all uploaded jobs. Only
     return db.jobs.get_job_files_by_user(user.id)
 
 
-@router.get("/{id}")
-def get_job(id: str, user: db.User = Depends(logged_in)):
-    return db.jobs.get_job_file(id)
+@router.get("/{job_id}")
+def get_job(job_id: int, user: db.User = Depends(logged_in)):
+    return db.jobs.get_job_file(job_id)
 
 
-@router.delete("/{id}")
+@router.delete("/{job_id}")
 def delete_job(job_id: int, user: db.User = Depends(standard_user)):
     job = db.jobs.get_job_file(job_id)
     if user.id == job.user_id or user.role == db.Role.ADMIN:
@@ -109,6 +109,6 @@ def set_gcode_filament_length(gcode: str, job_id: int):
     db.jobs.update_job_filament_len(job_id, length)
 
 
-@router.get("/{id}/history", dependencies=[Depends(logged_in)])
+@router.get("/{job_id}/history", dependencies=[Depends(logged_in)])
 def get_job_history(job_id: int):
     return db.jobs.get_history_by_job_id(job_id)

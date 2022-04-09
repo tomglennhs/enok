@@ -3,20 +3,20 @@ from typing import List
 from db import cur, JobFile, con, JobHistory
 
 
-def recall_job(id):
+def recall_job(job_id: int):
     job = cur.execute(
-        "SELECT * FROM job_history WHERE ROWID = ?", (id,)).fetchall()
+        "SELECT * FROM job_history WHERE ROWID = ?", (job_id,)).fetchall()
     return job
 
 
-def get_job_file(id) -> JobFile:
+def get_job_file(file_id: int) -> JobFile:
     job_file = cur.execute(
-        "SELECT id, filepath, filament_length, user_id FROM job_files WHERE id = ?", (id,)).fetchone()
-    id, filepath, filament_length, user_id = job_file
-    return JobFile(id=id, filepath=filepath, filament_length=filament_length, user_id=user_id)
+        "SELECT id, filepath, filament_length, user_id FROM job_files WHERE id = ?", (file_id,)).fetchone()
+    file_id, filepath, filament_length, user_id = job_file
+    return JobFile(id=file_id, filepath=filepath, filament_length=filament_length, user_id=user_id)
 
 
-def get_job_files_by_user(user_id) -> List[JobFile]:
+def get_job_files_by_user(user_id: int) -> List[JobFile]:
     files = []
     job_file = cur.execute(
         "SELECT id, filepath, filament_length, user_id FROM job_files WHERE user_id = ?", (user_id,)).fetchall()
@@ -45,17 +45,17 @@ def add_job(filepath: str, filament_length: float, user_id: int) -> int:
     return cur.lastrowid
 
 
-def delete_job(id: int):
-    cur.execute("DELETE FROM job_files WHERE id = ?", (id,))
+def delete_job(job_id: int):
+    cur.execute("DELETE FROM job_files WHERE id = ?", (job_id,))
     con.commit()
 
 
-def get_history_by_job_id(id: int) -> List[JobHistory]:
+def get_history_by_job_id(job_id: int) -> List[JobHistory]:
     arr = []
-    history = cur.execute("SELECT * FROM job_history WHERE job_file_id = ?", (id,)).fetchall()
+    history = cur.execute("SELECT * FROM job_history WHERE job_file_id = ?", (job_id,)).fetchall()
     for entry in history:
-        id, time_started, time_finished, status, job_file_id, printer_id = entry
-        arr.append(JobHistory(id=id, time_started=time_started, time_finished=time_finished, status=status,
+        job_id, time_started, time_finished, status, job_file_id, printer_id = entry
+        arr.append(JobHistory(id=job_id, time_started=time_started, time_finished=time_finished, status=status,
                               job_file_id=job_file_id, printer_id=printer_id))
     return arr
 

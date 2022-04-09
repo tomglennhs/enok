@@ -5,10 +5,10 @@ from db import cur, User, Role, con
 
 
 def get_user_param(id, *param):
-    if (len(param) == 1):
-        return cur.execute("SELECT " + str(i) +
+    if len(param) == 1:
+        return cur.execute("SELECT " + str(param[0]) +
                            " FROM users WHERE ROWID = ?", (id,)).fetchone()
-    elif (len(param) > 1):
+    elif len(param) > 1:
         user_param = []
         for i in param:
             user_param.append(cur.execute("SELECT " + str(i) +
@@ -18,17 +18,17 @@ def get_user_param(id, *param):
         return None
 
 
-def get_user_by_email(e: str) -> User:
+def get_user_by_email(address: str) -> User:
     user = cur.execute("SELECT * FROM users WHERE email = ?",
-                       (e,)).fetchone()
-    id, name, email, password, role, quota, login_provider = user
-    return User(id=id, name=name, email=email, password=password, role=role, quota=quota, login_provider=login_provider)
+                       (address,)).fetchone()
+    user_id, name, email, password, role, quota, login_provider = user
+    return User(id=user_id, name=name, email=email, password=password, role=role, quota=quota, login_provider=login_provider)
 
 
-def get_user_by_id(id: str) -> User:
-    user = cur.execute("SELECT * FROM users WHERE id = ?", (id,)).fetchone()
-    id, name, email, password, role, quota, login_provider = user
-    return User(id=id, name=name, email=email, password=password, role=role, quota=quota, login_provider=login_provider)
+def get_user_by_id(user_id: str) -> User:
+    user = cur.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+    user_id, name, email, password, role, quota, login_provider = user
+    return User(id=user_id, name=name, email=email, password=password, role=role, quota=quota, login_provider=login_provider)
 
 
 def create_user(name: str, email: str,

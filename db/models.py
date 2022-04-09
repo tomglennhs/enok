@@ -16,7 +16,7 @@ class Role(Enum):
     VIEW_ONLY = 0
     # Users that are certified to use printers.
     STANDARD = 1
-    # Users that have super user privileges.
+    # Users that have super-user privileges.
     ADMIN = 2
 
 
