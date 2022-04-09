@@ -38,10 +38,11 @@ def get_all_job_files() -> List[JobFile]:
     return files
 
 
-def add_job(filepath: str, filament_length: float, user_id: int):
+def add_job(filepath: str, filament_length: float, user_id: int) -> int:
     cur.execute("INSERT INTO job_files (filepath, filament_length, user_id) VALUES (?, ?, ?)",
                 (filepath, filament_length, user_id))
     con.commit()
+    return cur.lastrowid
 
 
 def delete_job(id: int):
@@ -57,3 +58,8 @@ def get_history_by_job_id(id: int) -> List[JobHistory]:
         arr.append(JobHistory(id=id, time_started=time_started, time_finished=time_finished, status=status,
                               job_file_id=job_file_id, printer_id=printer_id))
     return arr
+
+
+def update_job_filament_len(job_id: int, length: float):
+    cur.execute("UPDATE job_files SET filament_length = ? WHERE id = ?", (length, job_id))
+    con.commit()
