@@ -6,6 +6,7 @@ from pydantic import BaseModel
 with open("config.json", "r") as _file:
     _json_config = _file.read()
 
+
 # datetime.timedelta
 class Delta(BaseModel):
     microseconds: int = 0
@@ -19,7 +20,6 @@ class Delta(BaseModel):
 
 class Config(BaseModel):
     printerCheckFrequency: int
-    IP: List[str]
     googleClientID: Optional[str]
     allowedDomains: Optional[List[str]]
     sessionTimeout: Delta = Delta(hours=1)

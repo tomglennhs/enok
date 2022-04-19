@@ -2,11 +2,12 @@
 # TODO: Figure out pagination
 # TODO: Is there anything important that I'm overlooking wrt to sessions?
 # TODO: Handle errors better lol
+import asyncio
 import os
 
 import uvicorn
 from fastapi import FastAPI
-
+import status
 import db
 from config import config
 from routes import auth, dev, printers, jobs
@@ -24,9 +25,13 @@ def read_root():
 
 
 @app.on_event("startup")
-def startup_event():
+async def startup_event():
     if not os.path.exists(config.files_location):
         os.mkdir(config.files_location)
+    yield
+    while True:
+        status.update_printer_status()
+        await asyncio.sleep(config.printerCheckFrequency)
 
 
 @app.on_event("shutdown")
@@ -35,4 +40,4 @@ def shutdown_event():
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

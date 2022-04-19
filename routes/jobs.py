@@ -3,14 +3,12 @@ from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, BackgroundTasks
 
-import StatusManager as sm
 import db
 import db.jobs
 from config import config
 from dependencies import logged_in, standard_user
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
-state = sm.StatusManager()
 
 
 @router.get("/")
