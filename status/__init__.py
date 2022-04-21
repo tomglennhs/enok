@@ -10,7 +10,12 @@ sample_output = "{\"buildPlate_target_temperature\":60,\"chamber_temperature\":2
                 "\"platform_temperature\":58,\"progress\":0,\"remaining\":0,\"status\":\"busy\",\"temperature\":40," \
                 "\"totalTime\":0} "
 
-state: Dict[int, PrinterStatus] = {}
+
+class ExtendedPrinterStatus(PrinterStatus):
+    printer: BasePrinter
+
+
+state: Dict[int, ExtendedPrinterStatus] = {}
 
 
 def update_printer_status():
@@ -19,7 +24,12 @@ def update_printer_status():
         statuses = pool.map(_map, ps)
     for status in statuses:
         state[status.printer_id] = status
+    #     TODO: make sure to remove any printers that weren't just fetched
 
 
-def _map(printer: BasePrinter):
-    return printer.printer_status()
+def _map(printer: BasePrinter) -> ExtendedPrinterStatus:
+    s = printer.printer_status()
+    # TODO: make this less hacky... (i did the whole ExtendedPrinterStatus solely for the camera module so
+    # might want to start there if refactoring this)
+    e = ExtendedPrinterStatus(**s.dict(), printer=printer)
+    return e

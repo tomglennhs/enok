@@ -7,6 +7,8 @@ import os
 
 import uvicorn
 from fastapi import FastAPI
+
+import cameras
 import status
 import db
 from config import config
@@ -31,6 +33,7 @@ async def startup_event():
     yield
     while True:
         status.update_printer_status()
+        cameras.loop()
         await asyncio.sleep(config.printerCheckFrequency)
 
 
