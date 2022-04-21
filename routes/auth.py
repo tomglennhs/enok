@@ -8,7 +8,7 @@ from config import config
 import db
 import store
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -26,23 +26,24 @@ def login_google(response: Response, request: Request, g_csrf_token: str = Form(
         raise HTTPException(400, 'Failed to verify double submit cookie.')
 
     idinfo = id_token.verify_oauth2_token(
-        credential, requests.Request(), config.GOOGLE_CLIENT_ID)
+        credential, requests.Request(), config.googleClientID)
 
-    if len(config.ALLOWED_EMAIL_DOMAINS) > 0 and (
-            "hd" not in idinfo.keys() or idinfo['hd'] not in config.ALLOWED_EMAIL_DOMAINS):
+    if len(config.allowedDomains) > 0 and (
+            "hd" not in idinfo.keys() or idinfo['hd'] not in config.allowedDomains):
         raise HTTPException(
             401, "Invalid email domain. Try signing in with your school email.")
 
     user = db.users.get_user_by_email(idinfo["email"])
     if user is None:
         user = db.users.create_user(idinfo["name"], idinfo["email"], "google")
-    uid = user[0]
+    uid = user.id
     sid = uuid.uuid4()
-    expires = datetime.now() + config.SESSION_EXPIRY_DELTA
+    delta = timedelta(**config.sessionTimeout.dict())
+    expires = datetime.now() + delta
     store.set(f"sessions/{sid}", {"uid": uid, "expires": expires})
-    response.set_cookie("enok_sid", str(sid), httponly=True, secure=not config.DEV,
-                        max_age=config.SESSION_EXPIRY_DELTA.total_seconds)
-    return RedirectResponse(config.HOST)
+    response.set_cookie("enok_sid", str(sid), httponly=True, secure=not config.dev,
+                        max_age=int(delta.total_seconds()))
+    return RedirectResponse(config.host)
 
 
 @router.get("/logout")
