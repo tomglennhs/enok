@@ -1,6 +1,8 @@
 import uuid
 from typing import Dict, Any, Callable, NewType, Type, List, Optional
 
+from pydantic import BaseModel
+
 from status import state
 
 import numpy as np
@@ -12,13 +14,22 @@ SubscriberFunc: Type = NewType("SubscriberFunc", Callable[[np.ndarray], Any])
 # val is a dict. key is subscription id, val is a function that get called when a new frame is added for that printer
 _subscribers: Dict[int, Dict[str, SubscriberFunc]] = {}
 
+
+class Camera(BaseModel):
+    addr: str
+    video_capture: Any
+    ok: bool
+    # frame: np.ndarray
+    frame: Any
+
+
 # key is printer id,
 # val is a list. item one is a local camera id, or mjpg stream - as long as opencv supports it, we're chilling
 # item 2 is a cv.VideoCapture instance - wish there was a better type but that
 # seems it'll come eventually(tm) -> https://github.com/opencv/opencv-python/issues/656
 # item 3 is a bool indicating whether frames are being read succesfully. false if there are errors
 # item 4 is the latest frame
-_cameras: Dict[int, List[str, Any, bool, np.ndarray]] = {}
+_cameras: Dict[int, Camera] = {}
 
 
 def on_state_update():
@@ -58,26 +69,26 @@ def on_state_update():
         if p not in seen:
             # TODO: set up the new printer in subscribers and cameras
             _subscribers[p] = {}
-            camAddr = state[p].printer.camera
-            _cameras[p] = [state[p].printer.camera, cv.VideoCapture(camAddr), True, None]
-            pass
+            cam_addr = state[p].printer.camera
+            _cameras[p] = Camera(cam_addr=state[p].printer.camera, video_capture=cv.VideoCapture(cam_addr), ok=True,
+                                 frame=None)
 
 
 def loop():
     for cam in _cameras:
+        c = _cameras[cam]
+        if not c.ok:
+            continue
         try:
-            addr, vid, ok = _cameras[cam]
-            if not ok:
-                continue
-            ret, frame = vid.read()
-            _cameras[cam][2] = ret
+            ret, frame = c.video_capture.read()
             if not ret:
+                _cameras[cam] = c.copy(update={"ok": False})
                 continue
-            _cameras[cam][3] = frame
         except Exception as e:
             print(e)
-            _cameras[cam][2] = False
+            _cameras[cam] = c.copy(update={"ok": False})
             continue
+        _cameras[cam] = c.copy(update={"ok": True, "frame": frame})
         p = _subscribers[cam]
         for func in p.values():
             try:
