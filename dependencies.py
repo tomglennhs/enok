@@ -26,12 +26,12 @@ async def logged_in(response: Response, enok_sid: str = Cookie(None)):
 
 
 def standard_user(current_user: db.User = Depends(logged_in)):
-    if current_user.role.value <= db.Role.STANDARD.value:
+    if current_user.role.value < db.Role.STANDARD.value:
         raise HTTPException(403, "You do not have permission to access this resource.")
     return current_user
 
 
 def admin_user(current_user: db.User = Depends(logged_in)):
-    if current_user.role.value <= db.Role.ADMIN.value:
+    if current_user.role.value < db.Role.ADMIN.value:
         raise HTTPException(403, "You do not have permission to access this resource.")
     return current_user
