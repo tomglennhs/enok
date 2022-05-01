@@ -117,5 +117,5 @@ def unsubscribe(printer_id: int, sub_id: str):
         # you're not currently subscribed, so we don't need to do anything if there is a KeyError
         pass
 
-def get_frame(printer_id: int):
+def get_frame(printer_id: int) -> np.ndarray:
     return _cameras[printer_id].frame

@@ -56,23 +56,25 @@ def start_next_in_queue(printer_id: int):
     printer.upload_print(job.filepath)
     printer.start_print(os.path.split(job.filepath)[1])
 
-@router.get("/{printer_id}/camera/jpg")
+
+@router.get("/{printer_id}/camera/jpg", response_class=StreamingResponse)
 def get_printer_frame(printer_id: int):
     try:
-        img = cameras.get_frame(printer_id)
+        frame = cameras.get_frame(printer_id)
     except KeyError:
         raise HTTPException(400)
-    imgRGB=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
-    jpg = Image.fromarray(imgRGB)
+    frameRGB = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    img = Image.fromarray(frameRGB)
 
     tmpFile = BytesIO()
-    jpg.save(tmpFile, "JPEG")
+    img.save(tmpFile, "JPEG")
 
-    # TODO: Figure out how to use streaming responses instead. this works for now tho
-    # def test():
-    #     yield from tmpFile
-    # return StreamingResponse(content=test(), media_type="image/jpeg" )
-    return Response(content=tmpFile.getvalue(), media_type="image/jpeg")
+    def stream():
+        tmpFile.seek(0)
+        yield from tmpFile
+
+    return StreamingResponse(content=stream(), media_type="image/jpeg")
+
 
 @router.get("/status")
 def get_all_printer_status(user: db.User = Depends(logged_in)) -> List[PrinterStatus]:
