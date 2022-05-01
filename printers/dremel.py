@@ -62,13 +62,20 @@ class Dremel(BasePrinter):
         data = req.json()
         if data:
             return data["jobname"]
+        raise Exception("huh")
+
+    def can_print(self) -> bool:
+        return self._get_current_file_name() == ""
 
     def printer_status(self) -> PrinterStatus:
         req = requests.post(self.printer_host + "/command", headers={
                             'Content-Type': 'application/x-www-form-urlencoded'}, data={"GETPRINTERSTATUS": ""})
         data = req.json()
-        bed = Temperature(target=data["buildPlate_target_temperature"], current=data["platform_temperature"])
-        extruder = Temperature(target=data["extruder_target_temperature"], current=data["temperature"])
+        print(data)
+        bed = Temperature(
+            target=data["buildPlate_target_temperature"], current=data["platform_temperature"])
+        extruder = Temperature(
+            target=data["extruder_target_temperature"], current=data["temperature"])
         chamber = Temperature(current=data["chamber_temperature"])
         # TODO: Figure out what the paused/printing jobstatus is like
         status = CurrentStatus.Unknown
@@ -76,9 +83,11 @@ class Dremel(BasePrinter):
             status = CurrentStatus.ReadyToPrint
         elif data["jobstatus"] == "preparing":
             status = CurrentStatus.Preparing
-        # elif data["jobstatus"] == "!pausing":
-            # status = CurrentStatus.Printing
-        
+        elif data["jobstatus"] == "!pausing":
+            status = CurrentStatus.Printing
+
         # elaspedtime is not a typo 💀 that is how it is from the API
-        duration = Duration(elapsed=data["elaspedtime"], total=data["totalTime"], remaining=data["remaining"])
-        return PrinterStatus(printer_id=self.id, bed_temp=bed, extruder_temp=extruder, chamber_temp=chamber, current_status=status, file_name=data["jobname"], progress=data["progress"], duration=duration, raw=req.text, filament=data["filament_type"], last_fetched=datetime.now())
+        duration = Duration(
+            elapsed=data["elaspedtime"], total=data["totalTime"], remaining=data["remaining"])
+        return PrinterStatus(printer_id=self.id, bed_temp=bed, extruder_temp=extruder, chamber_temp=chamber, current_status=status, file_name=data["jobname"], progress=data["progress"], duration=duration, raw=req.text, filament=data["filament_type "], last_fetched=datetime.now())
+        # ALSO yes there is apparently a space in the key "filament_type "....

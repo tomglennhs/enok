@@ -31,9 +31,9 @@ def delete_printer(printer_id: int):
     con.commit()
 
 
-def create_printer(name: str, printer_type: base.PrinterType, ip: str, upload_method: str, queue: str):
-    cur.execute('''INSERT INTO printers (name, type, printer_host, queue) VALUES (?, ?, ?, ?)''',
-                (name, printer_type, ip, queue, upload_method))
+def create_printer(name: str, printer_type: base.PrinterType, printer_host: str, upload_method: str, queue: str, camera: str = ""):
+    cur.execute('''INSERT INTO printers (name, type, printer_host, queue, upload_method, camera) VALUES (?, ?, ?, ?, ?, ?)''',
+                (name, printer_type.value, printer_host, queue, upload_method, camera))
     con.commit()
     return get_printer_by_id(cur.lastrowid)
 

@@ -1,9 +1,15 @@
+from PIL import Image
+from io import BytesIO, StringIO
 import json
 import os
 from abc import ABC
 from typing import List
+import cv2
+from pydantic import Field
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi.responses import StreamingResponse
+import cameras
 
 import status as sm
 import db
@@ -50,6 +56,46 @@ def start_next_in_queue(printer_id: int):
     printer.upload_print(job.filepath)
     printer.start_print(os.path.split(job.filepath)[1])
 
+@router.get("/{printer_id}/camera/jpg")
+def get_printer_frame(printer_id: int):
+    try:
+        img = cameras.get_frame(printer_id)
+    except KeyError:
+        raise HTTPException(400)
+    imgRGB=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+    jpg = Image.fromarray(imgRGB)
+
+    tmpFile = BytesIO()
+    jpg.save(tmpFile, "JPEG")
+
+    # TODO: Figure out how to use streaming responses instead. this works for now tho
+    # def test():
+    #     yield from tmpFile
+    # return StreamingResponse(content=test(), media_type="image/jpeg" )
+    return Response(content=tmpFile.getvalue(), media_type="image/jpeg")
+
+@router.get("/status")
+def get_all_printer_status(user: db.User = Depends(logged_in)) -> List[PrinterStatus]:
+    arr = []
+    printers = db.printers.get_printers()
+    for printer in printers:
+        arr.append(get_printer_status(printer.id))
+    return arr
+
+
+@router.get("/status/{printer_id}")
+def get_printer_status(printer_id: int, user: db.User = Depends(logged_in)) -> PrinterStatus:
+    status: sm.ExtendedPrinterStatus = sm.state[printer_id]
+    update = False
+    if status is None:
+        printer = db.printers.get_printer_by_id(printer_id)
+        status = sm.ExtendedPrinterStatus(
+            **printer.printer_status().dict(), printer=printer)
+        update = True
+    if update:
+        sm.state[printer_id] = status
+    return status
+
 
 @router.get("/")
 def get_printers(user: db.User = Depends(logged_in)):
@@ -61,34 +107,35 @@ def get_printer(printer_id: int, user: db.User = Depends(logged_in)):
     return db.printers.get_printer_by_id(printer_id)
 
 
-@router.get("/{printer_id}/status")
-def get_printer_status(printer_id: int, bg: BackgroundTasks, user: db.User = Depends(logged_in)) -> PrinterStatus:
-    status = sm.state[printer_id]
-    update = False
-    if status is None:
-        status = db.printers.get_printer_by_id(printer_id).printer_status()
-        update = True
-    if update:
-        sm.state[printer_id] = status
-    return status
-
-
-@router.get("/status")
-def get_all_printer_status(user: db.User = Depends(logged_in)) -> List[PrinterStatus]:
-    arr = []
-    printers = db.printers.get_printers()
-    for printer in printers:
-        arr.append(get_printer_status(printer.id))
-    return arr
-
-
+# TODO: Figure out if there is a better way to make a model that inherits most properties from another but excludes some
 class NewPrinter(BasePrinter, ABC):
-    id: str = None
+    id: str = Field(None)
+
+    def upload_print(self, gcode_path: str):
+        return False
+
+    def start_print(self, file_name: str):
+        return False
+
+    def cancel_print(self):
+        return False
+
+    def pause_print(self):
+        return False
+
+    def can_print(self):
+        return False
+
+    def resume_print(self):
+        return False
+
+    def printer_status(self):
+        return
 
 
 @router.post("/", tags=["admin"])
 def add_printer(printer: NewPrinter, user: db.User = Depends(admin_user)):
-    return db.printers.create_printer(**printer.dict())
+    return db.printers.create_printer(name=printer.name, printer_type=printer.type, printer_host=printer.printer_host, camera=printer.camera, queue=printer.queue, upload_method=printer.upload_method)
 
 
 @router.delete("/{printer_id}", tags=["admin"])

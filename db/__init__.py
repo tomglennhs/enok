@@ -12,7 +12,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS users
                login_provider TEXT)''')
 
 cur.execute('''CREATE TABLE IF NOT EXISTS printers
-               (id INTEGER PRIMARY KEY, name TEXT, printer_host TEXT UNIQUE, camera TEXT, type TEXT, queue TEXT,
+               (id INTEGER PRIMARY KEY, name TEXT, printer_host TEXT UNIQUE, camera TEXT UNIQUE, type TEXT, queue TEXT,
                upload_method TEXT)''')
 
 cur.execute('''CREATE TABLE IF NOT EXISTS job_files
@@ -24,22 +24,22 @@ cur.execute('''CREATE TABLE IF NOT EXISTS job_history
                status TEXT, job_file_id int, printer_id int, FOREIGN KEY (job_file_id) REFERENCES job_files(id),
                FOREIGN KEY (printer_id) REFERENCES printers(id))''')
 
-try:
-    # Insert a row of data
-    cur.execute(
-        '''INSERT INTO users (name, email, password, quota, login_provider)
-        VALUES ('JASON', 'Jason@gmail.com', '######', 10000, 'gmail')''')
-    cur.execute(
-        '''INSERT INTO users (name, email, password, quota, login_provider) VALUES ('JOSEPH', 'Joseph@hotmail.com', 
-        '######', 5000, 'username')''')
-    cur.execute(
-        '''INSERT INTO printers (name, printer_host, camera, type, queue) VALUES ('dremel', '', '', 'dremel', '{\"queue\":[[
-        "file.gcode", {"UploadMethod": "USB", "Owner": 1}], ["file2.gcode",{"UploadMethod": "Network", 
-        "Owner": 2}]]}')''')
+# try:
+#     # Insert a row of data
+#     cur.execute(
+#         '''INSERT INTO users (name, email, password, quota, login_provider)
+#         VALUES ('JASON', 'Jason@gmail.com', '######', 10000, 'gmail')''')
+#     cur.execute(
+#         '''INSERT INTO users (name, email, password, quota, login_provider) VALUES ('JOSEPH', 'Joseph@hotmail.com',
+#         '######', 5000, 'username')''')
+#     cur.execute(
+#         '''INSERT INTO printers (name, printer_host, camera, type, queue) VALUES ('dremel', '', '', 'dremel', '{\"queue\":[[
+#         "file.gcode", {"UploadMethod": "USB", "Owner": 1}], ["file2.gcode",{"UploadMethod": "Network",
+#         "Owner": 2}]]}')''')
 
-    con.commit()
-except sqlite3.IntegrityError:
-    pass
+#     con.commit()
+# except sqlite3.IntegrityError:
+#     pass
 
 
 # Pull general information

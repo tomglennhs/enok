@@ -2,9 +2,10 @@ from datetime import datetime
 import json
 from abc import abstractmethod
 from enum import Enum
-from typing import Optional
+from typing import Optional, Callable
 
 from pydantic import AnyHttpUrl, BaseModel
+from pydantic.generics import GenericModel
 
 empty_queue = {"queue": []}
 
@@ -47,7 +48,7 @@ class PrinterStatus(BaseModel):
     last_fetched: datetime
 
 
-class BasePrinter(BaseModel):
+class BasePrinter(GenericModel):
     id: int
     name: str
     type: PrinterType
@@ -55,7 +56,7 @@ class BasePrinter(BaseModel):
     queue: str = json.dumps(empty_queue)
     upload_method: str
     camera: str
-
+    
     @abstractmethod
     def upload_print(self, gcode_path: str) -> bool:
         pass
@@ -83,3 +84,4 @@ class BasePrinter(BaseModel):
     @abstractmethod
     def printer_status(self) -> PrinterStatus:
         pass
+
