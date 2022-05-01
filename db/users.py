@@ -27,7 +27,7 @@ def get_user_by_email(address: str) -> Optional[User]:
     return User(id=user_id, name=name, email=email, password=password, role=role, quota=quota, login_provider=login_provider)
 
 
-def get_user_by_id(user_id: str) -> User:
+def get_user_by_id(user_id: int) -> User:
     user = cur.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
     user_id, name, email, password, role, quota, login_provider = user
     return User(id=user_id, name=name, email=email, password=password, role=role, quota=quota, login_provider=login_provider)
@@ -37,7 +37,7 @@ def create_user(name: str, email: str,
                 login_provider: str = "local", password: str = "", role: Role = Role.VIEW_ONLY,
                 quota: float = config.default_user_quota):
     cur.execute('''INSERT INTO users (name, email, login_provider, password, role, quota) VALUES (?, ?, ?, ?, ?, ?)''',
-                (name, email, login_provider, password, role.value, quota)).fetchone()
+                (name, email, login_provider, password, role, quota)).fetchone()
     con.commit()
     return get_user_by_email(email)
 
