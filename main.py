@@ -4,12 +4,11 @@
 # TODO: Handle errors better lol
 import asyncio
 import os
+import cameras
+import status
 
 import uvicorn
 from fastapi import FastAPI
-
-import cameras
-import status
 import db
 from config import config
 from routes import auth, dev, printers, jobs
@@ -23,18 +22,23 @@ app.include_router(jobs.router)
 
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
+    return {"enok": app.version}
+
+
+async def periodic(loop: asyncio.AbstractEventLoop):
+    status.update_printer_status()
+    cameras.on_state_update()
+    cameras.loop()
+    await asyncio.sleep(config.printerCheckFrequency)
+    loop.create_task(periodic(loop))
 
 
 @app.on_event("startup")
 async def startup_event():
     if not os.path.exists(config.files_location):
         os.mkdir(config.files_location)
-    yield
-    while True:
-        status.update_printer_status()
-        cameras.loop()
-        await asyncio.sleep(config.printerCheckFrequency)
+    loop = asyncio.get_running_loop()
+    loop.create_task(periodic(loop))
 
 
 @app.on_event("shutdown")

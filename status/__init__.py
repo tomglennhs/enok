@@ -18,13 +18,18 @@ class ExtendedPrinterStatus(PrinterStatus):
 state: Dict[int, ExtendedPrinterStatus] = {}
 
 
+
 def update_printer_status():
+    current_printers = []
     ps = printers.get_printers()
     with Pool(5) as pool:
         statuses = pool.map(_map, ps)
     for status in statuses:
         state[status.printer_id] = status
-    #     TODO: make sure to remove any printers that weren't just fetched
+        current_printers.append(status.printer_id)
+    for printer in state:
+        if printer not in current_printers:
+            del state[printer]
 
 
 def _map(printer: BasePrinter) -> ExtendedPrinterStatus:
