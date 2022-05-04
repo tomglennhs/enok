@@ -28,14 +28,16 @@ def login_google(response: Response, request: Request, g_csrf_token: str = Form(
     idinfo = id_token.verify_oauth2_token(
         credential, requests.Request(), config.googleClientID)
 
-    if len(config.allowedDomains) > 0 and (
-            "hd" not in idinfo.keys() or idinfo['hd'] not in config.allowedDomains):
+    if config.allowedDomains is not None and len(config.allowedDomains) > 0 and (
+            "hd" not in idinfo.keys() or idinfo["id"] not in config.allowedDomains):
         raise HTTPException(
             401, "Invalid email domain. Try signing in with your school email.")
 
     user = db.users.get_user_by_email(idinfo["email"])
     if user is None:
         user = db.users.create_user(idinfo["name"], idinfo["email"], "google")
+    if user is None:
+        raise HTTPException(500, "Failed to create user.")
     uid = user.id
     sid = uuid.uuid4()
     delta = timedelta(**config.sessionTimeout.dict())

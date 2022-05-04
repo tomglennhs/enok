@@ -149,6 +149,8 @@ def delete_printer(printer_id: int, user: db.User = Depends(admin_user)):
 def add_file_to_queue(printer_id: int, job_id: int, user: db.User = Depends(standard_user)):
     printer = db.printers.get_printer_by_id(printer_id)
     job = db.jobs.get_job_file(job_id)
+    if job.filament_length == -1:
+        raise HTTPException(400, "This job's filament length is being calculated, try again later.")
     new_quota = user.quota - job.filament_length
     if new_quota < 0:
         raise HTTPException(
