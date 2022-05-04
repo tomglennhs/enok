@@ -11,14 +11,14 @@ import uvicorn
 from fastapi import FastAPI
 import db
 from config import config
-from routes import auth, dev, printers, jobs
+from routes import auth, dev, printers, jobs, users
 
 app = FastAPI(title="Enok")
 app.include_router(auth.router)
 app.include_router(dev.router)
 app.include_router(printers.router)
 app.include_router(jobs.router)
-
+app.include_router(users.router)
 
 @app.get("/")
 def read_root():
