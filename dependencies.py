@@ -18,7 +18,7 @@ async def logged_in(response: Response, enok_sid: str = Cookie(None)):
         expired = True
         response.set_cookie("enok_sid", enok_sid, max_age=-1)
         store.safeDelete(key)
-        raise HTTPException(403, "Your session has expired, please sign in again.")
+        raise HTTPException(401, "Your session has expired, please sign in again.")
     yield db.users.get_user_by_id(session["uid"])
     if not expired:
         session["expires"] = datetime.now() + timedelta(**config.sessionTimeout.dict())

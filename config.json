@@ -7,5 +7,6 @@
   "host": "http://localhost:3000",
   "files_location": "/home/glenn/enok-files",
   "UploadVia": "Network",
-  "default_user_quota": 10000
+  "default_user_quota": 10000,
+  "status_processes": 1
 }

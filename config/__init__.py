@@ -1,7 +1,7 @@
 import json
 from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, conint
 
 with open("config.json", "r") as _file:
     _json_config = _file.read()
@@ -29,6 +29,8 @@ class Config(BaseModel):
     UploadVia: str
     # TODO: I set this to be an arbitrary number, make it actually reasonable later
     default_user_quota: float
+    status_processes: conint(gt=0)
+
 
 
 config = Config(**json.loads(_json_config))

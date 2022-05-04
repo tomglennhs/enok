@@ -2,6 +2,7 @@ from typing import Dict
 from printers.base import PrinterStatus, BasePrinter
 from db import printers
 from multiprocessing import Pool
+from config import config
 
 sample_output = "{\"buildPlate_target_temperature\":60,\"chamber_temperature\":26,\"door_open\":0,\"elaspedtime\":0," \
                 "\"error_code\":200,\"extruder_target_temperature\":0,\"fanSpeed\":0,\"filament_type \":\"PLA\"," \
@@ -22,7 +23,7 @@ state: Dict[int, ExtendedPrinterStatus] = {}
 def update_printer_status():
     current_printers = []
     ps = printers.get_printers()
-    with Pool(5) as pool:
+    with Pool(config.status_processes) as pool:
         statuses = pool.map(_map, ps)
     for status in statuses:
         state[status.printer_id] = status
