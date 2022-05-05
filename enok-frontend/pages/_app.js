@@ -1,4 +1,6 @@
 import { ChakraProvider, extendTheme } from '@chakra-ui/react'
+import {SWRConfig} from "swr";
+import fetchApi from "../lib/fetch";
 
 const theme = extendTheme({
     fonts: {
@@ -10,9 +12,11 @@ const theme = extendTheme({
 
 function MyApp({ Component, pageProps }) {
   return (
+      <SWRConfig value={{ fetcher: fetchApi }}>
       <ChakraProvider theme={theme}>
         <Component {...pageProps} />
       </ChakraProvider>
+      </SWRConfig>
   )
 }
 

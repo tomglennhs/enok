@@ -1,5 +1,4 @@
 import {Box, Flex, Heading, Icon, Text} from "@chakra-ui/react";
-import { HomeIcon } from '@radix-ui/react-icons'
 import * as React from "react";
 import {ReactElement} from "react";
 import Link from "next/link";
@@ -8,9 +7,9 @@ const Navbar = () => (
     <Box minH={"100vh"} w={"7.5vw"} backgroundColor={"gray.900"}>
         <Heading color={"white"} mb={2}>Enok</Heading>
         {/* TODO: Switch out icons */}
-        <NavButton label="Home" href="/" icon={HomeIcon}/>
-        <NavButton label="Printers" href="/printers" icon={HomeIcon}/>
-        <NavButton label="Jobs" href="/jobs" icon={HomeIcon}/>
+        {/*<NavButton label="Home" href="/" icon={HomeIcon}/>*/}
+        {/*<NavButton label="Printers" href="/printers" icon={HomeIcon}/>*/}
+        {/*<NavButton label="Jobs" href="/jobs" icon={HomeIcon}/>*/}
 
     </Box>
 )
